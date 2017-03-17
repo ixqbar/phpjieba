@@ -1,5 +1,5 @@
 
-
+### functions
 ```php
 array jieba(string $text, bool use_extract = false, long extract_limit = 10)
 ```
@@ -7,7 +7,7 @@ array jieba(string $text, bool use_extract = false, long extract_limit = 10)
 ### install
 ```
 git clone https://github.com/jonnywang/phpjieba.git
-cd jz/cjieba
+cd phpjieba/cjieba
 make
 
 cd ..
