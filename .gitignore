@@ -36,3 +36,4 @@ tests/*/*.sh
 cjieba/demo
 cjieba/lib/cjieba.o
 cjieba/lib/libcjieba.a
+*.so
