@@ -113,11 +113,11 @@ PHP_MINIT_FUNCTION(jieba)
 	char idf_path[BUFSIZE];
 	char stop_words_path[BUFSIZE];
 
-	memcpy(dict_path, JZ_G(dict_path), jz_dict_path_len);
-	memcpy(dict_hmm_path, JZ_G(dict_path), jz_dict_path_len);
-	memcpy(user_dict_path, JZ_G(dict_path), jz_dict_path_len);
-	memcpy(idf_path, JZ_G(dict_path), jz_dict_path_len);
-	memcpy(stop_words_path, JZ_G(dict_path), jz_dict_path_len);
+	memcpy(dict_path, JIEBA_G(dict_path), jz_dict_path_len);
+	memcpy(dict_hmm_path, JIEBA_G(dict_path), jz_dict_path_len);
+	memcpy(user_dict_path, JIEBA_G(dict_path), jz_dict_path_len);
+	memcpy(idf_path, JIEBA_G(dict_path), jz_dict_path_len);
+	memcpy(stop_words_path, JIEBA_G(dict_path), jz_dict_path_len);
 
 	if (dict_path[jz_dict_path_len - 1] != '/') {
 		dict_path[jz_dict_path_len] = '/';
@@ -212,11 +212,12 @@ PHP_FUNCTION(jieba)
 	size_t sentence_len;
 	zend_long extract_limit = 10;
 #else
-	int sentence_len;
+	int sentence_len = 0;
 	int extract_limit = 10;
 #endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &sentence, &sentence_len, &use_extract, &extract_limit) == FAILURE
+		|| sentence_len == 0
 		|| extract_limit <= 0) {
 		RETURN_FALSE;
 	}
@@ -236,7 +237,11 @@ PHP_FUNCTION(jieba)
 			&& extract_limit <= 0) {
 			break;
 		}
+#if PHP_MAJOR_VERSION >= 7
 		add_next_index_stringl(return_value, x->word, x->len);
+#else
+		add_next_index_stringl(return_value, x->word, x->len, 1);
+#endif
 		extract_limit--;
 	}
 	FreeWords(words);
