@@ -209,11 +209,11 @@ PHP_FUNCTION(jieba)
 	char *sentence = NULL;
 	zend_bool use_extract = 0;
 #if PHP_MAJOR_VERSION >= 7
-	size_t sentence_len;
+	size_t sentence_len = 0;
 	zend_long extract_limit = 10;
 #else
 	int sentence_len = 0;
-	int extract_limit = 10;
+	long extract_limit = 10;
 #endif
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &sentence, &sentence_len, &use_extract, &extract_limit) == FAILURE
