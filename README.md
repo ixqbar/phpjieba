@@ -1,7 +1,7 @@
 
 ### functions
 ```php
-array jieba(string $text, bool use_extract = false, long extract_limit = 10)
+array jieba(string $text, bool $use_extract = false, int $extract_limit = 10)
 ```
 
 ### install
@@ -27,13 +27,24 @@ jieba.dict_path=/Users/xingqiba/data/softs/jz/cjieba/dict    #指向jieba库dict
 ### example
 ```
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造');
-print_r($result);
+echo implode('/', $result) . PHP_EOL;
+//小明/硕士/毕业/于/中国/科学/学院/科学院/中国科学院/计算/计算所/，/后/在/日本/京都/大学/京都大学/深造
 
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造', true, 6);
-print_r($result);
+echo implode('/', $result) . PHP_EOL;
+//计算所/小明/京都大学/深造/硕士/中国科学院
 
 $result = jieba('他心理健康');
-print_r($result);
+echo implode('/', $result) . PHP_EOL;
+//他/心理/健康/心理健康
+
+$result = jieba('this is a demo, my name is jony', true, 10);
+echo implode('/', $result) . PHP_EOL;
+//demo/jony
+
+$result = jieba('this is a demo, my name is jony');
+echo implode('/', $result) . PHP_EOL;
+//this/ /is/ /a/ /demo/,/ /my/ /name/ /is/ /jony
 ```
  * 更新请参考example目录
 
