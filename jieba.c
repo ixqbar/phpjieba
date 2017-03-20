@@ -26,12 +26,11 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_jieba.h"
+#include <unistd.h>
 
 ZEND_DECLARE_MODULE_GLOBALS(jieba)
 
 static int le_jieba;
-
-#include <unistd.h>
 
 #ifndef BUFSIZE
 	#define BUFSIZE 2048
@@ -84,21 +83,23 @@ ZEND_GET_MODULE(jieba)
 #endif
 
 PHP_INI_BEGIN()
+	STD_PHP_INI_ENTRY("jieba.enable",    "0", PHP_INI_SYSTEM, OnUpdateBool,   enable,    zend_jieba_globals, jieba_globals)
 	STD_PHP_INI_ENTRY("jieba.dict_path", "",  PHP_INI_SYSTEM, OnUpdateString, dict_path, zend_jieba_globals, jieba_globals)
 PHP_INI_END()
 
 static void php_jz_init_globals(zend_jieba_globals *jieba_globals)
 {
-	jieba_globals->jieba = NULL;
+	jieba_globals->enable    = 0;
+	jieba_globals->jieba     = NULL;
 	jieba_globals->extractor = NULL;
 	jieba_globals->dict_path = NULL;
 }
 
-/* {{{ PHP_MINIT_FUNCTION
- */
-PHP_MINIT_FUNCTION(jieba)
+static int jieba_init()
 {
-	REGISTER_INI_ENTRIES();
+	if (JIEBA_G(enable) == 0) {
+		return FAILURE;
+	}
 
 	if (JIEBA_G(dict_path) == "" || JIEBA_G(dict_path) == NULL) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Please init your jieba dict path in php.ini");
@@ -158,14 +159,34 @@ PHP_MINIT_FUNCTION(jieba)
 
 	return SUCCESS;
 }
+
+static void jieba_deinit()
+{
+	if (JIEBA_G(enable) == 1) {
+		FreeJieba(JIEBA_G(jieba));
+		FreeExtractor(JIEBA_G(extractor));
+	}
+}
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+PHP_MINIT_FUNCTION(jieba)
+{
+	REGISTER_INI_ENTRIES();
+
+	if (JIEBA_G(enable) == 1) {
+		return jieba_init();
+	}
+
+	return SUCCESS;
+}
 /* }}} */
 
 /* {{{ PHP_MSHUTDOWN_FUNCTION
  */
 PHP_MSHUTDOWN_FUNCTION(jieba)
 {
-	FreeJieba(JIEBA_G(jieba));
-	FreeExtractor(JIEBA_G(extractor));
+	jieba_deinit();
 
 	UNREGISTER_INI_ENTRIES();
 
@@ -198,6 +219,7 @@ PHP_MINFO_FUNCTION(jieba)
 	php_info_print_table_start();
 	php_info_print_table_header(2, "jieba support", "enabled");
 	php_info_print_table_row(2, "version", PHP_JIEBA_VERSION);
+	php_info_print_table_row(2, "author", "QQ:174171262");
 	php_info_print_table_end();
 
 	DISPLAY_INI_ENTRIES();

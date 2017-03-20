@@ -24,7 +24,7 @@
 extern zend_module_entry jieba_module_entry;
 #define phpext_jieba_ptr &jieba_module_entry
 
-#define PHP_JIEBA_VERSION "0.0.1"
+#define PHP_JIEBA_VERSION "0.0.2"
 
 #ifdef PHP_WIN32
 #	define PHP_JIEBA_API __declspec(dllexport)
@@ -49,6 +49,7 @@ PHP_MINFO_FUNCTION(jieba);
 PHP_FUNCTION(jieba);
 
 ZEND_BEGIN_MODULE_GLOBALS(jieba)
+	zend_bool enable;
 	Extractor extractor;
 	Jieba jieba;
 	char *dict_path;
