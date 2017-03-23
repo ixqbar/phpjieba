@@ -87,7 +87,7 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY("jieba.dict_path", "",  PHP_INI_SYSTEM, OnUpdateString, dict_path, zend_jieba_globals, jieba_globals)
 PHP_INI_END()
 
-static void php_jz_init_globals(zend_jieba_globals *jieba_globals)
+static void php_jieba_init_globals(zend_jieba_globals *jieba_globals)
 {
 	jieba_globals->enable    = 0;
 	jieba_globals->jieba     = NULL;
@@ -172,6 +172,8 @@ static void jieba_deinit()
  */
 PHP_MINIT_FUNCTION(jieba)
 {
+	ZEND_INIT_MODULE_GLOBALS(jieba, php_jieba_init_globals, NULL);
+
 	REGISTER_INI_ENTRIES();
 
 	if (JIEBA_G(enable) == 1) {
