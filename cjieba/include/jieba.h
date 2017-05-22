@@ -20,8 +20,8 @@ typedef struct {
 
 CJiebaWord* Cut(Jieba handle, const char* sentence, size_t len);
 CJiebaWord* CutForSearch(Jieba handle, const char* sentence, size_t len);
-
-CJiebaWord* CutWithoutTagName(Jieba, const char*, size_t, const char*);
+CJiebaWord* CutWithTag(Jieba handle, const char*, size_t);
+CJiebaWord* CutWithoutTagName(Jieba handle, const char*, size_t, const char*);
 
 void FreeWords(CJiebaWord* words);
 

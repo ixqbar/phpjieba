@@ -1,8 +1,11 @@
 
+### version 0.0.3
+
 ### functions
 ```php
-array jieba(string $text, bool $use_extract = false, int $extract_limit = 10)
+array jieba(string $text, int $action = 0, int $limit = 50)
 ```
+* action 0 Extract 1 CutForSearch 2 Tag
 
 ### install
 ```
@@ -29,9 +32,10 @@ jieba.dict_path=/Users/xingqiba/data/softs/jz/cjieba/dict    #指向jieba库dict
 ```
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造');
 echo implode('/', $result) . PHP_EOL;
+
 //小明/硕士/毕业/于/中国/科学/学院/科学院/中国科学院/计算/计算所/，/后/在/日本/京都/大学/京都大学/深造
 
-$result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造', true, 6);
+$result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造', 1, 6);
 echo implode('/', $result) . PHP_EOL;
 //计算所/小明/京都大学/深造/硕士/中国科学院
 
@@ -39,17 +43,36 @@ $result = jieba('他心理健康');
 echo implode('/', $result) . PHP_EOL;
 //他/心理/健康/心理健康
 
-$result = jieba('this is a demo, my name is jony', true, 10);
+$result = jieba('this is a demo, my name is jony', 1, 10);
 echo implode('/', $result) . PHP_EOL;
 //demo/jony
 
 $result = jieba('this is a demo, my name is jony');
 echo implode('/', $result) . PHP_EOL;
 //this/ /is/ /a/ /demo/,/ /my/ /name/ /is/ /jony
+
+$result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造', 2);
+print_r($result);
+
+Array
+(
+    [小明] => x
+    [硕士] => n
+    [毕业] => n
+    [于] => p
+    [中国科学院] => nt
+    [计算所] => n
+    [，] => x
+    [后] => f
+    [在] => p
+    [日本] => ns
+    [京都大学] => nz
+    [深造] => v
+)
 ```
  * 更新请参考example目录
 
 ### contact
-更多疑问请+qq群 233415606 or [website http://www.hnphper.com](http://www.hnphper.com)
+更多疑问请+qq群 233415606 
 
 

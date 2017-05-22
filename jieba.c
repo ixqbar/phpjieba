@@ -231,18 +231,21 @@ PHP_MINFO_FUNCTION(jieba)
 PHP_FUNCTION(jieba)
 {
 	char *sentence = NULL;
-	zend_bool use_extract = 0;
 #if PHP_MAJOR_VERSION >= 7
 	size_t sentence_len = 0;
-	zend_long extract_limit = 10;
+	zend_long action = 0;
+	zend_long limit = 50;
 #else
 	int sentence_len = 0;
-	long extract_limit = 10;
+	long action = 0;
+	long limit = 50;
 #endif
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|bl", &sentence, &sentence_len, &use_extract, &extract_limit) == FAILURE
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &sentence, &sentence_len, &action, &limit) == FAILURE
 		|| sentence_len == 0
-		|| extract_limit <= 0) {
+		|| action > 2
+		|| action < 0
+		|| limit <= 0) {
 		RETURN_FALSE;
 	}
 
@@ -250,23 +253,55 @@ PHP_FUNCTION(jieba)
 	CJiebaWord *x;
 
 	array_init(return_value);
-	if (use_extract) {
-		words = Extract(JIEBA_G(extractor), sentence, sentence_len, extract_limit);
-	} else {
+	switch (action) {
+	case 0:
+		words = Extract(JIEBA_G(extractor), sentence, sentence_len, limit);
+		break;
+	case 1:
 		words = CutForSearch(JIEBA_G(jieba), sentence, sentence_len);
+		break;
+	case 2:
+		words = CutWithTag(JIEBA_G(jieba), sentence, sentence_len);
+		break;
 	}
 
+	int total = 0, index = 0, next_index;
 	for (x = words; x && x->word; x++) {
-		if (use_extract
-			&& extract_limit <= 0) {
+		total++;
+	}
+
+	while (index < total) {
+		if (limit <= 0) {
 			break;
 		}
-#if PHP_MAJOR_VERSION >= 7
-		add_next_index_stringl(return_value, x->word, x->len);
-#else
-		add_next_index_stringl(return_value, x->word, x->len, 1);
-#endif
-		extract_limit--;
+
+		if (action != 2) {
+			#if PHP_MAJOR_VERSION >= 7
+			add_next_index_stringl(return_value, words[index].word, words[index].len);
+			#else
+			add_next_index_stringl(return_value, words[index].word, words[index].len, 1);
+			#endif
+			limit--;
+		} else {
+			next_index = index + 1;
+			#if PHP_MAJOR_VERSION >= 7
+				add_assoc_stringl_ex(return_value, words[index].word, words[index].len, (char *)words[next_index].word, words[next_index].len);
+			#else
+				add_assoc_stringl_ex(return_value, words[index].word, words[index].len + 1, (char *)words[next_index].word, words[next_index].len, 1);
+			#endif
+			index++;
+		}
+
+		if (words[index].free) {
+			free((char *)words[index].word);
+			words[index].free = 0;
+		}
+		if (index > 0 && words[index - 1].free) {
+			free((char *)words[index - 1].word);
+			words[index - 1].free = 0;
+		}
+
+		index++;
 	}
 	FreeWords(words);
 }

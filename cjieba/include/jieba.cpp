@@ -94,6 +94,36 @@ CJiebaWord* CutWithoutTagName(Jieba handle, const char* sentence, size_t len, co
 	return res;
 }
 
+CJiebaWord* CutWithTag(Jieba handle, const char* sentence, size_t len) {
+	cppjieba::Jieba* x = (cppjieba::Jieba*) handle;
+	vector<pair<string, string> > tag_words;
+	x->Tag(string(sentence, len), tag_words);
+
+	CJiebaWord* res = (CJiebaWord*) malloc(sizeof(CJiebaWord) * (2 * tag_words.size() + 1));
+	size_t i, j, offset = 0;
+	for (i = 0, j = 0; i < tag_words.size(); i++) {
+		res[j].word = (char *) malloc(tag_words[i].first.size());
+		strncpy((char *) res[j].word, tag_words[i].first.data(), tag_words[i].first.size());
+		res[j].len = tag_words[i].first.size();
+		res[j].free = 1;
+
+		j++;
+
+		res[j].word = (char *) malloc(tag_words[i].second.size());
+		strncpy((char *) res[j].word, tag_words[i].second.data(), tag_words[i].second.size());
+		res[j].len = tag_words[i].second.size();
+		res[j].free = 1;
+
+		j++;
+	}
+
+	res[j].word = NULL;
+	res[j].len = 0;
+	res[j].free = 0;
+
+	return res;
+}
+
 void FreeWords(CJiebaWord* words) {
 	for (CJiebaWord *x = words; x->word; x++) {
 		if (x->free) {

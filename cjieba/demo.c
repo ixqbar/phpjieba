@@ -50,6 +50,18 @@ void CutWithoutTagNameDemo() {
 	FreeWords(words);
 }
 
+void CutWithTagDemo() {
+	printf("CutWithTagDemo:\n");
+
+	CJiebaWord *words = CutWithTag(handle, sentence, strlen(sentence));
+	CJiebaWord *x;
+	for (x = words; x->word; x++) {
+		printf("%.*s", (int) x->len, x->word);
+	}
+	printf("\n");
+	FreeWords(words);
+}
+
 void ExtractDemo() {
 	printf("ExtractDemo:\n");
 
@@ -92,6 +104,7 @@ int main(int argc, char **argv) {
 	CutDemo();
 	CutForSearchDemo();
 	CutWithoutTagNameDemo();
+	CutWithTagDemo();
 	ExtractDemo();
 	UserWordDemo();
 
