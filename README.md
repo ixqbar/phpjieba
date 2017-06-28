@@ -71,6 +71,7 @@ Array
 )
 ```
  * 更新请参考example目录
+ * 词性可参考HanLP词性标注集解释
 
 ### contact
 更多疑问请+qq群 233415606 
