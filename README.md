@@ -25,7 +25,7 @@ make install
 ```
 extension=jieba.so
 jieba.enable=1
-jieba.dict_path=/Users/xingqiba/data/softs/jz/cjieba/dict    #指向jieba库dict目录
+jieba.dict_path=/Users/xingqiba/data/softs/phpjieba/cjieba/dict    #指向jieba库dict目录
 ```
 
 ### example

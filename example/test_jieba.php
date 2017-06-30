@@ -24,6 +24,7 @@ echo implode('/', $result) . PHP_EOL;
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造', 2);
 print_r($result);
 
+/*
 Array
 (
     [小明] => x
@@ -39,3 +40,4 @@ Array
     [京都大学] => nz
     [深造] => v
 )
+*/
