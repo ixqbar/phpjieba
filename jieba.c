@@ -241,6 +241,11 @@ PHP_FUNCTION(jieba)
 	long limit = 50;
 #endif
 
+	if (JIEBA_G(enable) == 0) {
+		php_error_docref(NULL, E_WARNING, "phpjieba not enable in your php.ini");
+		RETURN_FALSE;
+	}
+
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &sentence, &sentence_len, &action, &limit) == FAILURE
 		|| sentence_len == 0
 		|| action > 2

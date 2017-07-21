@@ -1,5 +1,5 @@
 <?php
-
+try {
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造');
 echo implode('/', $result) . PHP_EOL;
 //计算所/小明/京都大学/深造/硕士/中国科学院/毕业/日本
@@ -40,3 +40,6 @@ Array
     [深造] => v
 )
 */
+} catch (Exception $e) {
+    echo $e->getMessage() . PHP_EOL;    
+}
