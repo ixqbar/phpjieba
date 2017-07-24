@@ -93,8 +93,6 @@ static int jieba_init()
 		return FAILURE;
 	}
 
-	php_printf("%s\n", JIEBA_G(dict_path));
-
 	size_t jz_dict_path_len = strlen(JIEBA_G(dict_path));
 
 	char dict_path[BUFSIZE];
@@ -184,18 +182,18 @@ static PHP_INI_MH(jieba_ini_enable_changed) {
 		return SUCCESS;
 	}
 
-	long cval;
-	if (is_numeric_string(new_value, new_value_length, &cval, NULL, 0) == IS_LONG) {
-		if (cval != 0) {
-			JIEBA_G(enable) = 1;
-		} else {
-			JIEBA_G(enable) = 0;
-		}
-	} else {
-		return FAILURE;
+	long e = zend_atol(new_value, new_value_length);
+	if (e > 0 && JIEBA_G(enable) == 0) {
+		JIEBA_G(enable) = 1;
+		return jieba_init();
 	}
 
-	return jieba_init();
+	if (e <= 0 && JIEBA_G(enable) == 1) {
+		JIEBA_G(enable) = 0;
+		return jieba_init();
+	}
+
+	return SUCCESS;
 }
 
 static PHP_INI_MH(jieba_ini_path_changed) {

@@ -24,7 +24,7 @@
 extern zend_module_entry jieba_module_entry;
 #define phpext_jieba_ptr &jieba_module_entry
 
-#define PHP_JIEBA_VERSION "0.0.4"
+#define PHP_JIEBA_VERSION "0.0.5"
 
 #ifdef PHP_WIN32
 #	define PHP_JIEBA_API __declspec(dllexport)
