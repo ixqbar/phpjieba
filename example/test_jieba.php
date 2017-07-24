@@ -1,4 +1,7 @@
 <?php
+ini_set('jieba.enable', 1);
+ini_set('jieba.dict_path', '/Users/xingqiba/data/softs/phpjieba/cjieba/dict');
+
 try {
 $result = jieba('小明硕士毕业于中国科学院计算所，后在日本京都大学深造');
 echo implode('/', $result) . PHP_EOL;
