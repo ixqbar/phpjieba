@@ -75,4 +75,7 @@ Array
 ### contact
 更多疑问请+qq群 233415606 
 
+### plus
+https://github.com/jonnywang/goredisjieba
+
 
