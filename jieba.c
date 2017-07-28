@@ -85,11 +85,21 @@ ZEND_GET_MODULE(jieba)
 
 static int jieba_init()
 {
-	if (JIEBA_G(enable) == 0) {
-		return FAILURE;
+	int not_change = 1;
+	if (JIEBA_G(enable) != INI_INT("jieba.enable")) {
+		JIEBA_G(enable) = (zend_bool)INI_INT("jieba.enable");
+		not_change = 0;
 	}
 
-	if (JIEBA_G(dict_path) == "" || JIEBA_G(dict_path) == NULL) {
+	if (JIEBA_G(dict_path) != INI_STR("jieba.dict_path")) {
+		JIEBA_G(dict_path) = INI_STR("jieba.dict_path");
+		not_change = 0;
+	}
+
+	if (1 == not_change
+		|| JIEBA_G(enable) == 0
+		|| JIEBA_G(dict_path) == ""
+		|| JIEBA_G(dict_path) == NULL) {
 		return FAILURE;
 	}
 
@@ -137,7 +147,7 @@ static int jieba_init()
 		|| access(user_dict_path, R_OK|F_OK) != 0
 		|| access(idf_path, R_OK|F_OK) != 0
 		|| access(stop_words_path, R_OK|F_OK) != 0) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "error jieba dict path in php.ini");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "error jieba dict path %s in php.ini", dict_path);
 		return FAILURE;
 	}
 
@@ -147,7 +157,7 @@ static int jieba_init()
 	}
 
 	if (JIEBA_G(extractor) != NULL) {
-		FreeJieba(JIEBA_G(extractor));
+		FreeExtractor(JIEBA_G(extractor));
 		JIEBA_G(extractor) = NULL;
 	}
 
@@ -169,75 +179,9 @@ static void jieba_deinit()
 	}
 }
 
-/*ZEND_INI_MH(name) int name(zend_ini_entry *entry,
-                           char *new_value, uint new_value_length,
-                           void *mh_arg1, void *mh_arg2, void *mh_arg3,
-                           int stage TSRMLS_DC) */
-static PHP_INI_MH(jieba_ini_enable_changed) {
-#if PHP_MAJOR_VERSION >= 7
-	size_t new_value_length = new_value->len;
-#endif
-
-	if (new_value_length == 0) {
-		return FAILURE;
-	}
-
-	if (0 == entry->modified) {
-		return SUCCESS;
-	}
-
-#if PHP_MAJOR_VERSION >= 7
-	long e = zend_atol(new_value->val, new_value->len);
-#else
-	long e = zend_atol(new_value, new_value_length);
-#endif
-
-	if (e > 0 && JIEBA_G(enable) == 0) {
-		JIEBA_G(enable) = 1;
-		return jieba_init();
-	}
-
-	if (e <= 0 && JIEBA_G(enable) == 1) {
-		JIEBA_G(enable) = 0;
-		return jieba_init();
-	}
-
-	return SUCCESS;
-}
-
-static PHP_INI_MH(jieba_ini_path_changed) {
-#if PHP_MAJOR_VERSION >= 7
-	size_t new_value_length = new_value->len;
-#endif
-
-	if (new_value_length == 0) {
-		return FAILURE;
-	}
-
-	if (0 == entry->modified) {
-		return SUCCESS;
-	}
-
-#if PHP_MAJOR_VERSION >= 7
-	if (JIEBA_G(dict_path) != NULL
-		&& 0 == strncmp(JIEBA_G(dict_path), new_value->val, new_value_length)) {
-		return SUCCESS;
-	}
-	JIEBA_G(dict_path) = new_value->val;
-#else
-	if (JIEBA_G(dict_path) != NULL
-		&& 0 == strncmp(JIEBA_G(dict_path), new_value, new_value_length)) {
-		return SUCCESS;
-	}
-	JIEBA_G(dict_path) = new_value;
-#endif
-
-	return jieba_init();
-}
-
 PHP_INI_BEGIN()
-	PHP_INI_ENTRY("jieba.enable",    "0", PHP_INI_ALL, jieba_ini_enable_changed)
-	PHP_INI_ENTRY("jieba.dict_path", "",  PHP_INI_ALL, jieba_ini_path_changed)
+	PHP_INI_ENTRY("jieba.enable",    "0", PHP_INI_ALL, NULL)
+	PHP_INI_ENTRY("jieba.dict_path", "",  PHP_INI_ALL, NULL)
 PHP_INI_END()
 
 static void php_jieba_init_globals(zend_jieba_globals *jieba_globals)
@@ -257,9 +201,7 @@ PHP_MINIT_FUNCTION(jieba)
 
 	REGISTER_INI_ENTRIES();
 
-	if (JIEBA_G(enable) == 1) {
-		return jieba_init();
-	}
+	jieba_init();
 
 	return SUCCESS;
 }
@@ -321,6 +263,8 @@ PHP_FUNCTION(jieba)
 	long action = 0;
 	long limit = 50;
 #endif
+
+	jieba_init();
 
 	if (JIEBA_G(enable) == 0) {
 		php_error_docref(NULL, E_WARNING, "phpjieba not enable in your php.ini");
