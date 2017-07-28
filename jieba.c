@@ -174,6 +174,10 @@ static void jieba_deinit()
                            void *mh_arg1, void *mh_arg2, void *mh_arg3,
                            int stage TSRMLS_DC) */
 static PHP_INI_MH(jieba_ini_enable_changed) {
+#if PHP_MAJOR_VERSION >= 7
+	size_t new_value_length = new_value->len;
+#endif
+
 	if (new_value_length == 0) {
 		return FAILURE;
 	}
@@ -182,7 +186,12 @@ static PHP_INI_MH(jieba_ini_enable_changed) {
 		return SUCCESS;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	long e = zend_atol(new_value->val, new_value->len);
+#else
 	long e = zend_atol(new_value, new_value_length);
+#endif
+
 	if (e > 0 && JIEBA_G(enable) == 0) {
 		JIEBA_G(enable) = 1;
 		return jieba_init();
@@ -197,6 +206,10 @@ static PHP_INI_MH(jieba_ini_enable_changed) {
 }
 
 static PHP_INI_MH(jieba_ini_path_changed) {
+#if PHP_MAJOR_VERSION >= 7
+	size_t new_value_length = new_value->len;
+#endif
+
 	if (new_value_length == 0) {
 		return FAILURE;
 	}
@@ -205,12 +218,19 @@ static PHP_INI_MH(jieba_ini_path_changed) {
 		return SUCCESS;
 	}
 
+#if PHP_MAJOR_VERSION >= 7
+	if (JIEBA_G(dict_path) != NULL
+		&& 0 == strncmp(JIEBA_G(dict_path), new_value->val, new_value_length)) {
+		return SUCCESS;
+	}
+	JIEBA_G(dict_path) = new_value->val;
+#else
 	if (JIEBA_G(dict_path) != NULL
 		&& 0 == strncmp(JIEBA_G(dict_path), new_value, new_value_length)) {
 		return SUCCESS;
 	}
-
 	JIEBA_G(dict_path) = new_value;
+#endif
 
 	return jieba_init();
 }
