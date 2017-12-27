@@ -5,7 +5,11 @@
 ```php
 array jieba(string $text, int $action = 0, int $limit = 50)
 ```
-* action 0 Extract 1 CutForSearch 2 Tag
+* action
+  * 0 Extract
+  * 1 CutForSearch
+  * 2 Tag
+  * 3 TagAll 解决 Tag 对于相同 key 的问题
 
 ### install
 ```
