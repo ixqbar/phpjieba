@@ -1,5 +1,6 @@
 
 ### version 0.0.6
+* 加载字典缘故嫌慢的同学可以考虑使用  https://github.com/jonnywang/goredisjieba
 
 ### functions
 ```php
