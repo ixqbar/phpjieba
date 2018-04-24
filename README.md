@@ -26,8 +26,9 @@ make install
 ```
 extension=jieba.so
 jieba.enable=1
-jieba.dict_path=/Users/xingqiba/data/softs/phpjieba/cjieba/dict    #指向jieba库dict目录
+jieba.dict_path=/data/softs/phpjieba/cjieba/dict
 ```
+*jieba.dict_path指向字典所在对应目录，请根据自己编译目录替换更改
 
 ### example
 ```
