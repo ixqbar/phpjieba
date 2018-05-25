@@ -273,7 +273,7 @@ PHP_FUNCTION(jieba)
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|ll", &sentence, &sentence_len, &action, &limit) == FAILURE
 		|| sentence_len == 0
-		|| action > 2
+		|| action > 3
 		|| action < 0
 		|| limit <= 0) {
 		RETURN_FALSE;
@@ -281,6 +281,7 @@ PHP_FUNCTION(jieba)
 
 	CJiebaWord *words;
 	CJiebaWord *x;
+	zval arr;
 
 	array_init(return_value);
 	switch (action) {
@@ -291,6 +292,7 @@ PHP_FUNCTION(jieba)
 		words = CutForSearch(JIEBA_G(jieba), sentence, sentence_len);
 		break;
 	case 2:
+	case 3:
 		words = CutWithTag(JIEBA_G(jieba), sentence, sentence_len);
 		break;
 	}
@@ -305,21 +307,48 @@ PHP_FUNCTION(jieba)
 			break;
 		}
 
-		if (action != 2) {
-			#if PHP_MAJOR_VERSION >= 7
-			add_next_index_stringl(return_value, words[index].word, words[index].len);
-			#else
-			add_next_index_stringl(return_value, words[index].word, words[index].len, 1);
-			#endif
-			limit--;
-		} else {
-			next_index = index + 1;
-			#if PHP_MAJOR_VERSION >= 7
+		switch ( action ) {
+			case 0:
+			case 1:
+				#if PHP_MAJOR_VERSION >= 7
+				add_next_index_stringl(return_value, words[index].word, words[index].len);
+				#else
+				add_next_index_stringl(return_value, words[index].word, words[index].len, 1);
+				#endif
+				limit--;
+				break;
+
+			case 2:
+				next_index = index + 1;
+				#if PHP_MAJOR_VERSION >= 7
 				add_assoc_stringl_ex(return_value, words[index].word, words[index].len, (char *)words[next_index].word, words[next_index].len);
-			#else
+				#else
 				add_assoc_stringl_ex(return_value, words[index].word, words[index].len + 1, (char *)words[next_index].word, words[next_index].len, 1);
-			#endif
-			index++;
+				#endif
+				index++;
+				break;
+
+			case 3:
+				array_init(&arr);
+
+				next_index = index + 1;
+
+				#if PHP_MAJOR_VERSION >= 7
+				add_assoc_stringl_ex(&arr, "Word", 4, (char *)words[index].word, words[index].len);
+				add_assoc_stringl_ex(&arr, "Pos", 3, (char *)words[next_index].word, words[next_index].len);
+				add_next_index_zval(return_value, &arr);
+				#else
+				add_assoc_stringl_ex(&arr, "Word", 4, (char *)words[index].word, words[index].len, 1);
+				add_assoc_stringl_ex(&arr, "Pos", 3, (char *)words[next_index].word, words[next_index].len, 1);
+				add_next_index_zval(return_value, &arr);
+				#endif
+
+				index++;
+
+				break;
+
+			default:
+				break;
 		}
 
 		if (words[index].free) {
